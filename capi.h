@@ -59,7 +59,7 @@ void destroy_audio_decoder(audio_codec_handle_t handle);
 /**
  * encoded [in]: the encoded audio data
  * encoded_len [in]: the length of encoded audio data
- * decoded [out]: the buffer for decoded sampels, (should assure enough buffer)
+ * decoded [out]: the buffer for decoded sampels, (assure it enough)
  * @return: decoded length if ok, else -1.
  */
 int decode_audio_frame(audio_codec_handle_t handle, uint8_t encoded[], int16_t encoded_len, int16_t decoded[]);
@@ -80,7 +80,7 @@ void destroy_audio_encoder(audio_codec_handle_t handle);
 /**
  * rawdata [in]: raw pcm data,
  * rawlength [in]: the length of raw pcm data,
- * encoded [out]: the buffer for encoded samples,
+ * encoded [out]: the buffer for encoded samples,(assure it enough)
  * encoded_buffer_length [in]: the buffer length for encoded samples,
  * @return: encoded length if ok, else -1.
  */

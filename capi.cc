@@ -38,14 +38,13 @@ void destroy_audio_resampler(audio_resampler_handle_t handle) {
 
 int push_audio_resampler(audio_resampler_handle_t handle, int16_t* samplesIn, int lengthIn, int16_t* samplesOut, int maxLen, int *outLen) {
     returnv_if_fail(handle, -1);
+    returnv_if_fail(handle->ptr, -1);
+
     webrtc::Resampler *resampler = handle->ptr;
-    if (resampler) {
-        int outSampleLen = *outLen;
-        int ret = resampler->Push(samplesIn, lengthIn, samplesOut, maxLen, outSampleLen);
-        *outLen = outSampleLen;
-        return ret;
-    }
-    return -1;
+    int outSampleLen = *outLen;
+    int ret = resampler->Push(samplesIn, lengthIn, samplesOut, maxLen, outSampleLen);
+    *outLen = outSampleLen;
+    return ret;
 }
 
 
@@ -79,10 +78,9 @@ audio_codec_handle_t create_audio_decoder(int codec_id, int channels) {
             if (WebRtcOpus_DecoderCreate(&dptr, int(channels)) == 0) {
                 if (WebRtcOpus_DecoderInit(dptr) == 0) {
                     vptr = (void *)dptr;
+                } else {
+                    WebRtcOpus_DecoderFree(dptr);
                 }
-            }
-            if (vptr == NULL && dptr != NULL) {
-                WebRtcOpus_DecoderFree(dptr);
             }
         }
         break;
@@ -92,10 +90,9 @@ audio_codec_handle_t create_audio_decoder(int codec_id, int channels) {
             if (WebRtcG722_CreateDecoder(&dptr) == 0) {
                 if (WebRtcG722_DecoderInit(dptr) == 0) {
                     vptr = (void *)dptr;
+                } else {
+                    WebRtcG722_FreeDecoder(dptr);
                 }
-            }
-            if (vptr == NULL && dptr != NULL) {
-                WebRtcG722_FreeDecoder(dptr);
             }
         }
         break;
@@ -181,10 +178,8 @@ int decode_audio_fec(audio_codec_handle_t handle, uint8_t encoded[], int16_t enc
     int16_t length = -1;
     if (handle->id == OPUS_CODEC) {
         OpusDecInst *dptr = (OpusDecInst *)handle->ptr;
-        if (dptr) {
-            int16_t temp_type = 0;
-            length = WebRtcOpus_DecodeFec(dptr, encoded, encoded_len, decoded, &temp_type);
-        }
+        int16_t temp_type = 0;
+        length = WebRtcOpus_DecodeFec(dptr, encoded, encoded_len, decoded, &temp_type);
     }
     return length;
 }
@@ -197,9 +192,7 @@ int decode_audio_plc(audio_codec_handle_t handle, int16_t decoded[]) {
     int16_t length = -1;
     if (handle->id == OPUS_CODEC) {
         OpusDecInst *dptr = (OpusDecInst *)handle->ptr;
-        if (dptr) {
-            length = WebRtcOpus_DecodePlc(dptr, decoded, 1);
-        }
+        length = WebRtcOpus_DecodePlc(dptr, decoded, 1);
     }
     return length;
 }
@@ -233,10 +226,9 @@ audio_codec_handle_t create_audio_encoder(int codec_id, int channels) {
             if (WebRtcG722_CreateEncoder(&eptr) == 0) {
                 if (WebRtcG722_EncoderInit(eptr) == 0) {
                     vptr = (void *)eptr;
+                } else {
+                    WebRtcG722_FreeEncoder(eptr);
                 }
-            }
-            if (vptr == NULL && eptr != NULL) {
-                WebRtcG722_FreeEncoder(eptr);
             }
         }
         break;
