@@ -24,13 +24,20 @@ INCLUDE += -Iwebrtc/common_audio/signal_processing/include
 OPUS_INC = $(shell pkg-config --cflags opus)
 INCLUDE += $(OPUS_INC)
 
-TARGET = libwebrtc.a
+OPUS_LIB = $(shell pkg-config --libs opus)
+LDFLAGS += $(OPUS_LIB)
+
+TARGET = capi_acodec
 
 
 ### base
 BASE_ROOT = webrtc/base
+SYS_ROOT = webrtc/system_wrappers/source
+AUDIO_ROOT = webrtc/common_audio
 BASE_SRCS = \
-	$(BASE_ROOT)/checks.cc
+	$(BASE_ROOT)/checks.cc \
+	$(SYS_ROOT)/aligned_malloc.cc \
+	$(AUDIO_ROOT)/audio_util.cc
 
 
 ### resampler
@@ -151,11 +158,13 @@ OBJS = $(TMPS:.c=.o)
 
 ifeq ($(ARCH),x86_64)
 all: $(OBJS)
-	@$(AR) rcs $(TARGET) $^
+	@$(AR) rcs lib$(TARGET).a $^
+	@$(CXX) -shared -o lib$(TARGET).so $(LDFLAGS) $^
 	@echo "generate $(TARGET)"
 else
 all: $(OBJS)
-	@libtool -static -o $(TARGET) $^
+	@libtool -static -o lib$(TARGET).a $^
+	@$(CXX) -shared -dynamiclib -o lib$(TARGET).dylib $(LDFLAGS) $^
 	@echo "generate $(TARGET)"
 endif
 
