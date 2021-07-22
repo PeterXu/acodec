@@ -4,6 +4,8 @@ CFLAGS = -Wall -fPIC -DPIC -g -O2
 LDFLAGS =
 
 OS=$(shell uname)
+OS0=$(shell uname | tr 'A-Z' 'a-z')
+
 ARCH=$(shell uname -p)
 OSARCH=$(OS)-$(ARCH)
 
@@ -23,9 +25,7 @@ endif
 
 ifneq ($(JDK_HOME),)
 CFLAGS += -I$(JDK_HOME)/include
-ifeq ($(OS),Linux)
-CFLAGS += -I$(JDK_HOME)/include/linux
-endif
+CFLAGS += -I$(JDK_HOME)/include/$(OS0)
 else
 $(error "pls check java home")
 endif
