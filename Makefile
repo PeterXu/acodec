@@ -1,6 +1,6 @@
 CC = cc
 CXX = c++
-CFLAGS = -Wall -fPIC -DPIC -g -O2 -DWEBRTC_POSIX
+CFLAGS = -Wall -fPIC -DPIC -g -O2
 LDFLAGS =
 
 OS=$(shell uname)
@@ -8,12 +8,25 @@ ARCH=$(shell uname -p)
 OSARCH=$(OS)-$(ARCH)
 
 ifeq ($(OS),Linux)
-CFLAGS += -DWEBRTC_LINUX
+CFLAGS += -DWEBRTC_POSIX -DWEBRTC_LINUX
+JDK_HOME = $(shell echo $JAVA_HOME)
+endif
+
+ifeq ($(OS),Darwin)
+CFLAGS += -DWEBRTC_POSIX
+JDK_HOME = $(shell /usr/libexec/java_home)
 endif
 
 ifeq ($(OSARCH),Darwin-arm)
 CFLAGS += -DWEBRTC_ARCH_ARM64 -DWEBRTC_ARCH_ARM_NEON
 endif
+
+ifneq ($(JDK_HOME),)
+CFLAGS += -I$(JDK_HOME)/include
+else
+$(error "pls check java home")
+endif
+
 
 INCLUDE = -I. -Iwebrtc
 INCLUDE += -Iwebrtc/modules/audio_coding/codecs/g711/include
@@ -156,17 +169,34 @@ SRCS = $(BASE_SRCS) $(RESAMPLER_SRCS) \
 TMPS = $(SRCS:.cc=.o)
 OBJS = $(TMPS:.c=.o)
 
+JNI_SRCS = jni_capi.cc
+JNI_TMPS = $(JNI_SRCS:.cc=.o)
+JNI_OBJS = $(JNI_TMPS:.c=.o)
+
+
+all: default jni
+
+
 ifeq ($(ARCH),x86_64)
-all: $(OBJS)
+default: $(OBJS)
 	@$(AR) rcs lib$(TARGET).a $^
 	@$(CXX) -shared -o lib$(TARGET).so $(LDFLAGS) $^
 	@echo "generate $(TARGET)"
+
+jni: $(OBJS) $(JNI_OBJS)
+	@$(CXX) -shared -o libjni$(TARGET).so $(LDFLAGS) $^
+	@echo "generate jni$(TARGET)"
 else
-all: $(OBJS)
+default: $(OBJS)
 	@libtool -static -o lib$(TARGET).a $^
 	@$(CXX) -shared -dynamiclib -o lib$(TARGET).dylib $(LDFLAGS) $^
 	@echo "generate $(TARGET)"
+
+jni: $(OBJS) $(JNI_OBJS)
+	@$(CXX) -shared -dynamiclib -o libjni$(TARGET).dylib $(LDFLAGS) $^
+	@echo "generate jni$(TARGET)"
 endif
+
 
 .cc.o:
 	$(CXX) $(CFLAGS) $(INCLUDE) -c $<  -o $@
@@ -177,5 +207,9 @@ endif
 clean:
 	@$(RM) $(OBJS)
 
-distclean:
-	@$(RM) $(OBJS) $(TARGET)
+distclean: clean
+	@$(RM) lib$(TARGET).a
+	@$(RM) lib$(TARGET).so
+	@$(RM) libjni$(TARGET).so
+	@$(RM) lib$(TARGET).dylib
+	@$(RM) libjni$(TARGET).dylib
