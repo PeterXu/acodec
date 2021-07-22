@@ -9,7 +9,7 @@ OSARCH=$(OS)-$(ARCH)
 
 ifeq ($(OS),Linux)
 CFLAGS += -DWEBRTC_POSIX -DWEBRTC_LINUX
-JDK_HOME = $(shell echo $JAVA_HOME)
+JDK_HOME = $(shell echo ${JAVA_HOME})
 endif
 
 ifeq ($(OS),Darwin)
@@ -23,6 +23,9 @@ endif
 
 ifneq ($(JDK_HOME),)
 CFLAGS += -I$(JDK_HOME)/include
+ifeq ($(OS),Linux)
+CFLAGS += -I$(JDK_HOME)/include/linux
+endif
 else
 $(error "pls check java home")
 endif
