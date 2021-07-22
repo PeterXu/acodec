@@ -208,7 +208,7 @@ endif
 	$(CC) $(CFLAGS) $(INCLUDE) -c $<  -o $@
 
 clean:
-	@$(RM) $(OBJS)
+	@$(RM) $(OBJS) $(JNI_OBJS)
 
 distclean: clean
 	@$(RM) lib$(TARGET).a

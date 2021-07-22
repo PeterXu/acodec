@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 
-#define JNI_CPAI_FUNC(v, p) JNIEXPORT v JNICALL Java_com_zenvv_capi_acodec_ ## p
+#define JNI_CPAI_FUNC(v, p) JNIEXPORT v JNICALL Java_com_zenvv_capi_ADecoder_ ## p
 
 jbyteArray as_jbyte_array(JNIEnv *env, unsigned char *buf, int len) {
     jbyteArray array = env->NewByteArray(len);
