@@ -1,7 +1,10 @@
 CC = cc
 CXX = c++
+AR = $(AR) rcs
+
 CFLAGS = -Wall -fPIC -DPIC -g -O2
 LDFLAGS =
+DFLAGS = -shared
 
 OS=$(shell uname)
 OS0=$(shell uname | tr 'A-Z' 'a-z')
@@ -9,13 +12,24 @@ OS0=$(shell uname | tr 'A-Z' 'a-z')
 ARCH=$(shell uname -p)
 OSARCH=$(OS)-$(ARCH)
 
+
+TARGET = capi_acodec
+STATIC_TARGET = lib$(TARGET).a
+SHARED_TARGET = lib$(TARGET).so
+JNI_SHARED_TARGET = libjni$(TARGET).so
+
+
 ifeq ($(OS),Linux)
 CFLAGS += -DWEBRTC_POSIX -DWEBRTC_LINUX
 JDK_HOME = $(shell echo ${JAVA_HOME})
 endif
 
 ifeq ($(OS),Darwin)
+AR = libtool -static -o
+DFLAGS += -dynamiclib
 CFLAGS += -DWEBRTC_POSIX
+SHARED_TARGET = lib$(TARGET).dylib
+JNI_SHARED_TARGET = libjni$(TARGET).dylib
 JDK_HOME = $(shell /usr/libexec/java_home)
 endif
 
@@ -43,7 +57,8 @@ INCLUDE += $(OPUS_INC)
 OPUS_LIB = $(shell pkg-config --libs opus)
 LDFLAGS += $(OPUS_LIB)
 
-TARGET = capi_acodec
+
+###==================
 
 
 ### base
@@ -162,6 +177,7 @@ ISAC_MAIN_SRCS = \
 	$(ISAC_MAIN_ROOT)/source/transform.c
 
 
+
 ### all sources
 SRCS = $(BASE_SRCS) $(RESAMPLER_SRCS) \
 	$(SIGNAL_SRCS) \
@@ -176,29 +192,40 @@ JNI_SRCS = jni_capi.cc
 JNI_TMPS = $(JNI_SRCS:.cc=.o)
 JNI_OBJS = $(JNI_TMPS:.c=.o)
 
+TEST_SRCS = tests/test.cc
+TEST_TMPS = $(TEST_SRCS:.cc=.o)
+TEST_OBJS = $(TEST_TMPS:.c=.o)
 
-all: default jni
+TESTJNI_SRCS = tests/test_jni.cc
+TESTJNI_TMPS = $(TESTJNI_SRCS:.cc=.o)
+TESTJNI_OBJS = $(TESTJNI_TMPS:.c=.o)
 
 
-ifeq ($(ARCH),x86_64)
-default: $(OBJS)
-	@$(AR) rcs lib$(TARGET).a $^
-	@$(CXX) -shared -o lib$(TARGET).so $(LDFLAGS) $^
-	@echo "generate $(TARGET)"
+### targets
+
+
+all: test testjni
+
+test: $(OBJS) $(TEST_OBJS)
+	@$(CXX) -o tests/test $(LDFLAGS) $^
+	@echo "generate test"
+
+testjni: $(OBJS) $(JNI_OBJS) $(TESTJNI_OBJS)
+	@$(CXX) -o tests/testjni $(LDFLAGS) $^
+	@echo "generate testjni"
+
+
+static: $(OBJS)
+	@$(AR) $(STATIC_TARGET) $^
+	@echo "generate static $(TARGET)"
+
+shared: $(OBJS)
+	@$(CXX) $(DFLAGS) -o $(SHARED_TARGET) $(LDFLAGS) $^
+	@echo "generate shared $(TARGET)"
 
 jni: $(OBJS) $(JNI_OBJS)
-	@$(CXX) -shared -o libjni$(TARGET).so $(LDFLAGS) $^
-	@echo "generate jni$(TARGET)"
-else
-default: $(OBJS)
-	@libtool -static -o lib$(TARGET).a $^
-	@$(CXX) -shared -dynamiclib -o lib$(TARGET).dylib $(LDFLAGS) $^
-	@echo "generate $(TARGET)"
-
-jni: $(OBJS) $(JNI_OBJS)
-	@$(CXX) -shared -dynamiclib -o libjni$(TARGET).dylib $(LDFLAGS) $^
-	@echo "generate jni$(TARGET)"
-endif
+	@$(CXX) $(DFLAGS) -o $(JNI_SHARED_TARGET) $(LDFLAGS) $^
+	@echo "generate jni-shared $(TARGET)"
 
 
 .cc.o:
@@ -209,10 +236,9 @@ endif
 
 clean:
 	@$(RM) $(OBJS) $(JNI_OBJS)
+	@$(RM) $(TEST_OBJS) $(TESTJNI_OBJS)
 
 distclean: clean
-	@$(RM) lib$(TARGET).a
-	@$(RM) lib$(TARGET).so
-	@$(RM) libjni$(TARGET).so
-	@$(RM) lib$(TARGET).dylib
-	@$(RM) libjni$(TARGET).dylib
+	@$(RM) $(STATIC_TARGET)
+	@$(RM) $(SHARED_TARGET) $(JNI_SHARED_TARGET)
+	@$(RM) tests/test tests/testjni

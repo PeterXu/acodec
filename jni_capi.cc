@@ -32,6 +32,7 @@ short *as_cshort_array(JNIEnv *env, jshortArray array, int *outlen) {
     return buf;
 }
 
+extern "C" void Java_Jni_Test() {}
 
 
 JNI_CPAI_FUNC(jlong, CreateDecoder)(JNIEnv *env, jobject inst, jint codecId, jint nChannels)
