@@ -1,14 +1,24 @@
 
-How to build?
+How to build in windows?
 
-1. Only support Linux and MacOS.
+```
+1. install mingw tools
 
-2. Install opus lib: 
+2. build opus
+    $> cd opus-1.3.1/build/
+    $> sh run.sh
+    $> make
 
-    a. brew install opus,  
-    b. yum install opus-devel,  
+3. build test
+    $> make test
 
-3. make
+4. install jdk(cotains jni)
+    $> WIN_JDK="windows/jdk/path" make
 
-4. Include header in project: capi.h
+5. build jni-capi
+    $> make testjni
+    $> make jni
+
+```
+
 

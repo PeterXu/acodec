@@ -16,9 +16,11 @@
 #include <cstdio>
 #include <cstdlib>
 
+#if !defined(WEBRTC_WIN)
 #if defined(__GLIBCXX__) && !defined(__UCLIBC__)
 #include <cxxabi.h>
 #include <execinfo.h>
+#endif
 #endif
 
 #if defined(WEBRTC_ANDROID)
@@ -69,6 +71,7 @@ void PrintError(const char* format, ...) {
 // to get usable symbols on Linux. This is copied from V8. Chromium has a more
 // advanced stace trace system; also more difficult to copy.
 void DumpBacktrace() {
+#if !defined(WEBRTC_WIN)
 #if defined(__GLIBCXX__) && !defined(__UCLIBC__)
   void* trace[100];
   int size = backtrace(trace, sizeof(trace) / sizeof(*trace));
@@ -95,6 +98,7 @@ void DumpBacktrace() {
     }
   }
   free(symbols);
+#endif
 #endif
 }
 
