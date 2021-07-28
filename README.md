@@ -15,7 +15,7 @@ How to build in windows?
     $> make test
     $> make shared
 
-4. install jdk(cotains jni)
+4. install jdk(contains jni.h)
     $> WIN_JDK="windows/jdk/path" make
 
 5. build jni-capi
