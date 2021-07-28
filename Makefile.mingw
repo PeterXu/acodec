@@ -218,3 +218,4 @@ distclean: clean
 	@$(RM) $(STATIC_TARGET)
 	@$(RM) $(SHARED_TARGET) $(JNI_SHARED_TARGET)
 	@$(RM) tests/test tests/testjni
+	@$(RM) tests/test.exe tests/testjni.exe
