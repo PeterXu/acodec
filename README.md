@@ -2,6 +2,8 @@
 How to build in windows?
 
 ```
+0. copy Makefile.mingw to Makefile
+
 1. install mingw tools
 
 2. build opus
@@ -26,6 +28,8 @@ How to build in windows?
 How to build in Linux?
 
 ```
+0. $> cp Makefile.unix Makefile
+
 1. install opus
     CentOS: $> yum install opus-devel
     Ubuntu: $> apt-get install libopus-dev

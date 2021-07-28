@@ -3,7 +3,7 @@ CXX = c++
 AR = $(AR) rcs
 
 CFLAGS = -Wall -fPIC -DPIC -g -O2
-LDFLAGS =
+LDFLAGS = -pthread
 DFLAGS = -shared
 
 OS=$(shell uname)
