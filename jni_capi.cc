@@ -47,13 +47,13 @@ JNI_CPAI_FUNC(void, DestroyDecoder)(JNIEnv *env, jobject inst, jlong handle)
     destroy_audio_decoder(codec);
 }
 
-JNI_CPAI_FUNC(jint, DecodeFrame)(JNIEnv *env, jobject inst, jlong handle, jbyteArray encoded, jshortArray decoded)
+JNI_CPAI_FUNC(jint, DecodeFrame)(JNIEnv *env, jobject inst, jlong handle, jbyteArray encoded, jbyteArray decoded)
 {
     audio_codec_handle_t codec = (audio_codec_handle_t)handle;
     int encoded_len = 0;
     unsigned char *p_encoded = as_cbyte_array(env, encoded, &encoded_len);
-    short *p_decoded = as_cshort_array(env, decoded, NULL);
-    int iret = decode_audio_frame(codec, p_encoded, encoded_len, p_decoded);
+    unsigned char *p_decoded = as_cbyte_array(env, decoded, NULL);
+    int iret = decode_audio_frame(codec, p_encoded, encoded_len, (short *)p_decoded);
     return iret;
 }
 
