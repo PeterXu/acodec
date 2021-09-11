@@ -32,8 +32,9 @@ short *as_cshort_array(JNIEnv *env, jshortArray array, int *outlen) {
     return buf;
 }
 
-extern "C" void Java_Jni_Test() {}
+extern "C" {
 
+void Java_Jni_Test() {}
 
 JNI_CPAI_FUNC(jlong, CreateDecoder)(JNIEnv *env, jobject inst, jint codecId, jint nChannels)
 {
@@ -57,3 +58,4 @@ JNI_CPAI_FUNC(jint, DecodeFrame)(JNIEnv *env, jobject inst, jlong handle, jbyteA
     return iret;
 }
 
+} // extern "C"
