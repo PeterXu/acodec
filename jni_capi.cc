@@ -6,9 +6,18 @@
 
 #define JNI_CPAI_FUNC(v, p) JNIEXPORT v JNICALL Java_com_zenvv_capi_ADecoder_ ## p
 
+
+enum {
+    kWebRtcOpusMaxDecodeFrameSizeMs = 120,
+    kWebRtcOpusMaxFrameSizePerChannel = 48 * kWebRtcOpusMaxDecodeFrameSizeMs,
+    kWebRtcOpusMaxFrameSize = kWebRtcOpusMaxFrameSizePerChannel * 2,
+};
+
 jbyteArray as_jbyte_array(JNIEnv *env, unsigned char *buf, int len) {
     jbyteArray array = env->NewByteArray(len);
-    env->SetByteArrayRegion(array, 0, len, (jbyte *) (buf));
+    if (array != NULL) {
+        env->SetByteArrayRegion(array, 0, len, (jbyte *) (buf));
+    }
     return array;
 }
 
@@ -48,14 +57,18 @@ JNI_CPAI_FUNC(void, DestroyDecoder)(JNIEnv *env, jobject inst, jlong handle)
     destroy_audio_decoder(codec);
 }
 
-JNI_CPAI_FUNC(jint, DecodeFrame)(JNIEnv *env, jobject inst, jlong handle, jbyteArray encoded, jbyteArray decoded)
+JNI_CPAI_FUNC(jbyteArray, DecodeFrame)(JNIEnv *env, jobject inst, jlong handle, jbyteArray encoded)
 {
     audio_codec_handle_t codec = (audio_codec_handle_t)handle;
     int encoded_len = 0;
     unsigned char *p_encoded = as_cbyte_array(env, encoded, &encoded_len);
-    unsigned char *p_decoded = as_cbyte_array(env, decoded, NULL);
+    unsigned char p_decoded[kWebRtcOpusMaxFrameSize*2];
     int iret = decode_audio_frame(codec, p_encoded, encoded_len, (short *)p_decoded);
-    return iret;
+    if (iret <= 0) {
+        return NULL;
+    }
+
+    return as_jbyte_array(env, p_decoded, iret * 2);
 }
 
 } // extern "C"

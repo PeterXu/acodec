@@ -21,13 +21,13 @@ public class ADecoder {
         DestroyDecoder(audioHandle);
     }
 
-    public int Decode(byte[] encoded, byte[] decoded) {
-        return DecodeFrame(audioHandle, encoded, decoded);
+    public byte[] Decode(byte[] encoded) {
+        return DecodeFrame(audioHandle, encoded);
     }
 
     private native long CreateDecoder(int codecId, int nChannels);
     private native void DestroyDecoder(long handle);
-    private native int DecodeFrame(long handle, byte[] encoded, byte[] decoded);
+    private native byte[] DecodeFrame(long handle, byte[] encoded);
 
     static  {
         System.loadLibrary("jnicapi_acodec");
