@@ -2,10 +2,16 @@ import com.zenvv.capi.*;
 
 public class TestJni {
     public static void main(String[] args) {
-        ADecoder dec = new ADecoder(ADecoder.PCMA_CODEC);
-        byte[] data = new byte[100];
-        byte[] ret = dec.Decode(data);
+        byte[] data = new byte[960];
+        AEncoder enc = new AEncoder(AEncoder.OPUS_CODEC);
+        byte[] ret1 = enc.Encode(data);
+        enc.Close();
+        System.out.println("hello world:" + ret1.length);
+
+        ADecoder dec = new ADecoder(ADecoder.OPUS_CODEC);
+        byte[] ret2 = dec.Decode(ret1);
         dec.Close();
-        System.out.println("hello world:" + ret.length);
+        System.out.println("hello world:" + ret2.length);
+
     }
 }
