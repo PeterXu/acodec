@@ -1,2 +1,6 @@
 libwebrtc.a
+lib*.so
+*.class
 *.o
+test
+testjni
