@@ -160,11 +160,11 @@ JNI_SHARED_TARGET = libjni$(TARGET).$(DYEXT)
 all: test 
 
 test: $(OBJS) $(TEST_OBJS)
-	@$(CXX) -o tests/test $(LDFLAGS) $^
+	@$(CXX) -o tests/test $^ $(LDFLAGS)
 	@echo "generate test"
 
 testjni: $(OBJS) $(JNI_OBJS) $(TESTJNI_OBJS)
-	@$(CXX) -o tests/testjni $(LDFLAGS) $^
+	@$(CXX) -o tests/testjni $^ $(LDFLAGS)
 	@echo "generate testjni"
 
 
@@ -173,11 +173,11 @@ static: $(OBJS)
 	@echo "generate static $(TARGET)"
 
 shared: $(OBJS)
-	@$(CXX) $(DFLAGS) -o $(SHARED_TARGET) $(LDFLAGS) $^
+	@$(CXX) $(DFLAGS) -o $(SHARED_TARGET) $^ $(LDFLAGS)
 	@echo "generate shared $(TARGET)"
 
 jni: $(OBJS) $(JNI_OBJS)
-	@$(CXX) $(DFLAGS) -o $(JNI_SHARED_TARGET) $(LDFLAGS) $^
+	@$(CXX) $(DFLAGS) -o $(JNI_SHARED_TARGET) $^ $(LDFLAGS)
 	@echo "generate jni-shared $(TARGET)"
 
 

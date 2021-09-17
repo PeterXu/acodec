@@ -5,7 +5,7 @@ AR = $(HOST)-ar rcs
 RANLIB = $(HOST)-ranlib
 
 CFLAGS = -Wall -fPIC -DPIC -g -O2
-LDFLAGS = -lssp
+LDFLAGS =
 DFLAGS = -shared
 CFLAGS += -DWEBRTC_WIN
 
@@ -14,7 +14,7 @@ ARCH = x86_64
 DYEXT = dll
 EXEXT = exe
 
-
+# set java home here
 JDK_HOME = $(WIN_JDK)
 CFLAGS += -I$(JDK_HOME)/include
 CFLAGS += -I$(JDK_HOME)/include/windows
@@ -25,5 +25,6 @@ INCLUDE += $(OPUS_INC)
 OPUS_LIB = -Lopus-1.3.1/build/.libs -lopus
 LDFLAGS += $(OPUS_LIB)
 
+LDFLAGS += -lssp
 
 include common.mak
