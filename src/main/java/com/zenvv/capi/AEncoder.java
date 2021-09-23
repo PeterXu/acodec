@@ -25,9 +25,14 @@ public class AEncoder {
         return EncodeFrame(audioHandle, encoded);
     }
 
+    public int GetLastError() {
+        return GetError(audioHandle);
+    }
+
     private native long CreateEncoder(int codecId, int nChannels);
     private native void DestroyEncoder(long handle);
     private native byte[] EncodeFrame(long handle, byte[] pcmdata);
+    private native int GetError(long handle);
 
     static  {
         System.loadLibrary("jnicapi_acodec");

@@ -4,6 +4,7 @@
 #include "webrtc/modules/audio_coding/codecs/g711/include/g711_interface.h"
 #include "webrtc/modules/audio_coding/codecs/g722/include/g722_interface.h"
 #include <string.h>
+#include <stdio.h>
 
 #ifndef NULL
 #define NULL (0)
