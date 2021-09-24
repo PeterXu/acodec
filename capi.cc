@@ -56,10 +56,22 @@ int push_audio_resampler(audio_resampler_handle_t handle, int16_t* samplesIn, in
 struct audio_codec_t {
     int id;
     int is_dec;
+    int error;
     void *ptr;
 };
 
 static uint32_t kDefaultCodecPtr = 0xabcd1234;
+
+void set_codec_error(audio_codec_handle_t handle, int error) {
+    return_if_fail(handle);
+    handle->error = error;
+}
+
+int get_codec_error(audio_codec_handle_t handle) {
+    returnv_if_fail(handle, 0);
+    return handle->error;
+}
+
 
 
 /**

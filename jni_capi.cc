@@ -47,8 +47,6 @@ short *as_cshort_array(JNIEnv *env, jshortArray array, int *outlen) {
 
 extern "C" {
 
-int g_last_decode_error = 0;
-
 void Java_Jni_Test() {}
 
 JNI_DEC_FUNC(jlong, CreateDecoder)(JNIEnv *env, jobject inst, jint codecId, jint nChannels)
@@ -74,9 +72,9 @@ JNI_DEC_FUNC(jbyteArray, DecodeFrame)(JNIEnv *env, jobject inst, jlong handle, j
     int iret = decode_audio_frame(codec, p_encoded, encoded_len, (short *)p_decoded);
     if (iret > 0) {
         result = as_jbyte_array(env, p_decoded, iret * 2);
-        g_last_decode_error = 0;
+        set_codec_error(codec, 0);
     } else {
-        g_last_decode_error = iret;
+        set_codec_error(codec, iret);
     }
     free(p_encoded);
 
@@ -84,16 +82,14 @@ JNI_DEC_FUNC(jbyteArray, DecodeFrame)(JNIEnv *env, jobject inst, jlong handle, j
 }
 
 JNI_DEC_FUNC(jint, GetError)(JNIEnv *env, jobject inst, jlong handle) {
-    //audio_codec_handle_t codec = (audio_codec_handle_t)handle;
-    return g_last_decode_error;
+    audio_codec_handle_t codec = (audio_codec_handle_t)handle;
+    return get_codec_error(codec);
 }
 
 
 /**
  * Encoder
  */
-
-int g_last_encode_error = 0;
 
 JNI_ENC_FUNC(jlong, CreateEncoder)(JNIEnv *env, jobject inst, jint codecId, jint nChannels)
 {
@@ -118,17 +114,17 @@ JNI_ENC_FUNC(jbyteArray, EncodeFrame)(JNIEnv *env, jobject inst, jlong handle, j
     int iret = encode_audio_frame(codec, (int16_t *)p_raw, raw_len/2, p_encoded, sizeof(p_encoded));
     if (iret > 0) {
         result = as_jbyte_array(env, p_encoded, iret);
-        g_last_encode_error = 0;
+        set_codec_error(codec, 0);
     } else {
-        g_last_encode_error = iret;
+        set_codec_error(codec, iret);
     }
     free(p_raw);
     return result;
 }
 
 JNI_ENC_FUNC(jint, GetError)(JNIEnv *env, jobject inst, jlong handle) {
-    //audio_codec_handle_t codec = (audio_codec_handle_t)handle;
-    return g_last_encode_error;
+    audio_codec_handle_t codec = (audio_codec_handle_t)handle;
+    return get_codec_error(codec);
 }
 
 } // extern "C"

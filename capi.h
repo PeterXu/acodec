@@ -49,6 +49,14 @@ enum {
 
 typedef struct audio_codec_t * audio_codec_handle_t;
 
+
+/**
+ * store/query codec error.
+ */
+void set_codec_error(audio_codec_handle_t handle, int error);
+int get_codec_error(audio_codec_handle_t handle);
+
+
 /**
  * audio decoder
  */
