@@ -26,6 +26,7 @@ jbyteArray as_jbyte_array(JNIEnv *env, unsigned char *buf, int len) {
 }
 
 unsigned char *as_cbyte_array(JNIEnv *env, jbyteArray array, int *outlen) {
+    if (!array) return NULL;
     int len = env->GetArrayLength(array);
     unsigned char *buf = (unsigned char *) malloc(len * sizeof(unsigned char));
     env->GetByteArrayRegion(array, 0, len, (jbyte *) (buf));

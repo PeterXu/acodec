@@ -7,12 +7,14 @@ public class TestJni {
         byte[] ret1 = enc.Encode(data);
         int err1 = enc.GetLastError();
         enc.Close();
-        System.out.println("hello world:" + ret1.length + ", err:" + err1);
+        int len1 = (ret1 != null) ? ret1.length : 0;
+        System.out.println("encode:" + len1 + ", err:" + err1);
 
         ADecoder dec = new ADecoder(ADecoder.OPUS_CODEC);
         byte[] ret2 = dec.Decode(ret1);
         int err2 = dec.GetLastError();
         dec.Close();
-        System.out.println("hello world:" + ret2.length + ", err:" + err2);
+        int len2 = (ret2 != null) ? ret2.length : 0;
+        System.out.println("decode:" + len2 + ", err:" + err2);
     }
 }
