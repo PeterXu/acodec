@@ -21,6 +21,13 @@ public class AEncoder {
         DestroyEncoder(audioHandle);
     }
 
+    /**
+     * only support opus
+     */
+    public int SetBitrate(int bps) {
+        return SetEncoderBitrate(audioHandle, bps);
+    }
+
     public byte[] Encode(byte[] encoded) {
         return EncodeFrame(audioHandle, encoded);
     }
@@ -31,6 +38,7 @@ public class AEncoder {
 
     private native long CreateEncoder(int codecId, int nChannels);
     private native void DestroyEncoder(long handle);
+    private native int SetEncoderBitrate(long handle, int bitrate);
     private native byte[] EncodeFrame(long handle, byte[] pcmdata);
     private native int GetError(long handle);
 

@@ -84,6 +84,11 @@ int decode_audio_plc(audio_codec_handle_t handle, int16_t decoded[]);
 audio_codec_handle_t create_audio_encoder(int codec_id, int channels); 
 void destroy_audio_encoder(audio_codec_handle_t handle);
 
+/**
+ * set encode bitrate, only valid for opus(default 64kbps)
+ * @return: 0 if ok, else -1.
+ */
+int set_audio_encoder_bitrate(audio_codec_handle_t handle, int bitrate_bps);
 
 /**
  * rawdata [in]: raw pcm data,

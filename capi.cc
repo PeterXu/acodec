@@ -231,8 +231,8 @@ audio_codec_handle_t create_audio_encoder(int codec_id, int channels) {
         {
             OpusEncInst *eptr = NULL;
             if (WebRtcOpus_EncoderCreate(&eptr, channels) == 0) {
-                WebRtcOpus_SetBitRate(eptr, 48000);
-                WebRtcOpus_EnableFec(eptr);
+                WebRtcOpus_SetBitRate(eptr, 64000); // default 64kbps
+                WebRtcOpus_EnableFec(eptr); // default enable fec
                 WebRtcOpus_SetPacketLossRate(eptr, 5);
                 vptr = (void *)eptr;
             }
@@ -289,6 +289,17 @@ void destroy_audio_encoder(audio_codec_handle_t handle) {
 
     handle->ptr = NULL;
     delete handle;
+}
+
+int set_audio_encoder_bitrate(audio_codec_handle_t handle, int bitrate_bps) {
+    returnv_if_fail(handle, -1);
+    returnv_if_fail(handle->ptr, -1);
+    returnv_if_fail(!handle->is_dec, -1);
+    if (handle->id == OPUS_CODEC) {
+        OpusEncInst * eptr = (OpusEncInst *)handle->ptr;
+        return WebRtcOpus_SetBitRate(eptr, bitrate_bps);
+    }
+    return -1;
 }
 
 int encode_audio_frame(audio_codec_handle_t handle, int16_t rawdata[], int16_t rawlength, uint8_t encoded[], int16_t encoded_buffer_length) {

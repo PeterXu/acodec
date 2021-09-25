@@ -93,7 +93,7 @@ JNI_DEC_FUNC(jbyteArray, DecodeFrame)(JNIEnv *env, jobject inst, jlong handle, j
     return result;
 }
 
-JNI_DEC_FUNC(jbyteArray, DecodePlc)(JNIEnv *env, jobject inst, jlong handle)
+JNI_DEC_FUNC(jbyteArray, DecodeFramePlc)(JNIEnv *env, jobject inst, jlong handle)
 {
     audio_codec_handle_t codec = (audio_codec_handle_t)handle;
     unsigned char p_decoded[kWebRtcAudioMaxFrameSize*2] = {0};
@@ -129,6 +129,12 @@ JNI_ENC_FUNC(void, DestroyEncoder)(JNIEnv *env, jobject inst, jlong handle)
 {
     audio_codec_handle_t codec = (audio_codec_handle_t) handle;
     destroy_audio_encoder(codec);
+}
+
+JNI_ENC_FUNC(jint, SetEncoderBitrate)(JNIEnv *env, jobject inst, jlong handle, jint bitrate)
+{
+    audio_codec_handle_t codec = (audio_codec_handle_t) handle;
+    return set_audio_encoder_bitrate(codec, bitrate);
 }
 
 JNI_ENC_FUNC(jbyteArray, EncodeFrame)(JNIEnv *env, jobject inst, jlong handle, jbyteArray pcmdata)
