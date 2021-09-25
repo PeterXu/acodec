@@ -31,11 +31,10 @@ CFLAGS += -DWEBRTC_ARCH_ARM64 -DWEBRTC_ARCH_ARM_NEON
 endif
 
 ifneq ($(JDK_HOME),)
+JDK_HOME = src/jdk
+endif
 CFLAGS += -I$(JDK_HOME)/include
 CFLAGS += -I$(JDK_HOME)/include/$(OS0)
-else
-$(error "pls check java home")
-endif
 
 OPUS_INC = $(shell pkg-config --cflags opus)
 INCLUDE += $(OPUS_INC)

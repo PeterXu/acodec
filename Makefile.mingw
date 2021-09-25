@@ -16,6 +16,9 @@ EXEXT = exe
 
 # set java home here
 JDK_HOME = $(WIN_JDK)
+ifneq ($(JDK_HOME),)
+JDK_HOME = src/jdk
+endif
 CFLAGS += -I$(JDK_HOME)/include
 CFLAGS += -I$(JDK_HOME)/include/windows
 
