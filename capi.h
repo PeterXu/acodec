@@ -39,8 +39,8 @@ int push_audio_resampler(audio_resampler_handle_t handle, int16_t* samplesIn, in
  * Audio Codec
  */
 
-enum {
-    AUDIO_UNKNOW,
+enum audio_codec_id_t {
+    AUDIO_UNKNOWN = 0,
     PCMA_CODEC,
     PCMU_CODEC,
     OPUS_CODEC,
@@ -49,12 +49,12 @@ enum {
 
 typedef struct audio_codec_t * audio_codec_handle_t;
 
-
 /**
- * store/query codec error.
+ * audio codec query/error
  */
-void set_codec_error(audio_codec_handle_t handle, int error);
-int get_codec_error(audio_codec_handle_t handle);
+int get_audio_codec_id(audio_codec_handle_t handle);
+void set_audio_codec_error(audio_codec_handle_t handle, int error);
+int get_audio_codec_error(audio_codec_handle_t handle);
 
 
 /**

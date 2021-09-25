@@ -62,29 +62,56 @@ JNI_DEC_FUNC(void, DestroyDecoder)(JNIEnv *env, jobject inst, jlong handle)
     destroy_audio_decoder(codec);
 }
 
-JNI_DEC_FUNC(jbyteArray, DecodeFrame)(JNIEnv *env, jobject inst, jlong handle, jbyteArray encoded)
+JNI_DEC_FUNC(jbyteArray, DecodeFrame)(JNIEnv *env, jobject inst, jlong handle, jbyteArray encoded, jboolean bFec)
 {
     audio_codec_handle_t codec = (audio_codec_handle_t)handle;
+    if (bFec) {
+        int codec_id = get_audio_codec_id(codec);
+        if (codec_id != OPUS_CODEC) {
+            return NULL;
+        }
+    }
+
     int encoded_len = 0;
     unsigned char *p_encoded = as_cbyte_array(env, encoded, &encoded_len);
     unsigned char p_decoded[kWebRtcAudioMaxFrameSize*2] = {0};
 
     jbyteArray result = NULL;
-    int iret = decode_audio_frame(codec, p_encoded, encoded_len, (short *)p_decoded);
+    int iret = -1;
+    if (bFec)
+        iret = decode_audio_fec(codec, p_encoded, encoded_len, (short *)p_decoded);
+    else
+        iret = decode_audio_frame(codec, p_encoded, encoded_len, (short *)p_decoded);
     if (iret > 0) {
         result = as_jbyte_array(env, p_decoded, iret * 2);
-        set_codec_error(codec, 0);
+        set_audio_codec_error(codec, 0);
     } else {
-        set_codec_error(codec, iret);
+        set_audio_codec_error(codec, iret);
     }
     free(p_encoded);
 
     return result;
 }
 
+JNI_DEC_FUNC(jbyteArray, DecodePlc)(JNIEnv *env, jobject inst, jlong handle)
+{
+    audio_codec_handle_t codec = (audio_codec_handle_t)handle;
+    unsigned char p_decoded[kWebRtcAudioMaxFrameSize*2] = {0};
+
+    jbyteArray result = NULL;
+    int iret = decode_audio_plc(codec, (short *)p_decoded);
+    if (iret > 0) {
+        result = as_jbyte_array(env, p_decoded, iret * 2);
+        set_audio_codec_error(codec, 0);
+    } else {
+        set_audio_codec_error(codec, iret);
+    }
+    return result;
+}
+
 JNI_DEC_FUNC(jint, GetError)(JNIEnv *env, jobject inst, jlong handle) {
     audio_codec_handle_t codec = (audio_codec_handle_t)handle;
-    return get_codec_error(codec);
+    return get_audio_codec_error(codec);
 }
 
 
@@ -115,9 +142,9 @@ JNI_ENC_FUNC(jbyteArray, EncodeFrame)(JNIEnv *env, jobject inst, jlong handle, j
     int iret = encode_audio_frame(codec, (int16_t *)p_raw, raw_len/2, p_encoded, sizeof(p_encoded));
     if (iret > 0) {
         result = as_jbyte_array(env, p_encoded, iret);
-        set_codec_error(codec, 0);
+        set_audio_codec_error(codec, 0);
     } else {
-        set_codec_error(codec, iret);
+        set_audio_codec_error(codec, iret);
     }
     free(p_raw);
     return result;
@@ -125,7 +152,7 @@ JNI_ENC_FUNC(jbyteArray, EncodeFrame)(JNIEnv *env, jobject inst, jlong handle, j
 
 JNI_ENC_FUNC(jint, GetError)(JNIEnv *env, jobject inst, jlong handle) {
     audio_codec_handle_t codec = (audio_codec_handle_t)handle;
-    return get_codec_error(codec);
+    return get_audio_codec_error(codec);
 }
 
 } // extern "C"

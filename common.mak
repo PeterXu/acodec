@@ -30,6 +30,10 @@ RESAMPLER_SRCS = \
 
 ifeq ($(ARCH),x86_64)
 RESAMPLER_SRCS += $(RESAMPLER_ROOT)/sinc_resampler_sse.cc
+else
+ifeq ($(ARCH),i386)
+RESAMPLER_SRCS += $(RESAMPLER_ROOT)/sinc_resampler_sse.cc
+endif
 endif
 
 ifeq ($(ARCH),arm)

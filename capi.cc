@@ -62,12 +62,17 @@ struct audio_codec_t {
 
 static uint32_t kDefaultCodecPtr = 0xabcd1234;
 
-void set_codec_error(audio_codec_handle_t handle, int error) {
+int get_audio_codec_id(audio_codec_handle_t handle) {
+    returnv_if_fail(handle, AUDIO_UNKNOWN);
+    return handle->id;
+}
+
+void set_audio_codec_error(audio_codec_handle_t handle, int error) {
     return_if_fail(handle);
     handle->error = error;
 }
 
-int get_codec_error(audio_codec_handle_t handle) {
+int get_audio_codec_error(audio_codec_handle_t handle) {
     returnv_if_fail(handle, 0);
     return handle->error;
 }
