@@ -199,3 +199,6 @@ distclean: clean
 	@$(RM) $(STATIC_TARGET)
 	@$(RM) $(SHARED_TARGET) $(JNI_SHARED_TARGET)
 	@$(RM) tests/test${EXEXT} tests/testjni${EXEXT}
+
+
+include help.mak
