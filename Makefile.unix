@@ -1,6 +1,6 @@
 CC = cc
 CXX = c++
-AR = $(AR) rcs
+AR = ar rcs
 
 CFLAGS = -Wall -fPIC -DPIC -g -O2
 LDFLAGS = -pthread
