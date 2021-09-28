@@ -39,13 +39,8 @@ CFLAGS += -I$(JDK_HOME)/include/$(OS0)
 OPUS_INC = $(shell pkg-config --cflags opus)
 INCLUDE += $(OPUS_INC)
 
-ifeq ($(OS),Linux)
-OPUS_LIB = $(shell pkg-config --libs-only-L opus)
-LDFLAGS += $(OPUS_LIB) -l:libopus.a
-else
 OPUS_LIB = $(shell pkg-config --libs opus)
 LDFLAGS += $(OPUS_LIB)
-endif
 
 
 include common.mak
