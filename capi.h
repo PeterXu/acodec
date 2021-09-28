@@ -85,10 +85,16 @@ audio_codec_handle_t create_audio_encoder(int codec_id, int channels);
 void destroy_audio_encoder(audio_codec_handle_t handle);
 
 /**
- * set encode bitrate, only valid for opus(default 64kbps)
+ * set encode options, only valid for opus.
  * @return: 0 if ok, else -1.
  */
-int set_audio_encoder_bitrate(audio_codec_handle_t handle, int bitrate_bps);
+enum AudioEncoderOption {
+    AUDIO_ENCODER_BITRATE = 0, // [0,512*1024]bps. (default 64kbps)
+    AUDIO_ENCODER_LOSSRATE,    // [0-100], suggest <15. (default 5: 5%)
+    AUDIO_ENCODER_FEC,         // 0: disable, !=0: enable. (default enable)
+    AUDIO_ENCODER_COMPLEXITY,  // [0,10], suggest >=5. (default 10)
+};
+int set_audio_encoder_option(audio_codec_handle_t handle, AudioEncoderOption option, int value);
 
 /**
  * rawdata [in]: raw pcm data,

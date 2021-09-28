@@ -147,10 +147,10 @@ JNI_ENC_FUNC(void, DestroyEncoder)(JNIEnv *env, jobject inst, jlong handle)
     destroy_audio_encoder(codec);
 }
 
-JNI_ENC_FUNC(jint, SetEncoderBitrate)(JNIEnv *env, jobject inst, jlong handle, jint bitrate)
+JNI_ENC_FUNC(jint, SetEncoderOption)(JNIEnv *env, jobject inst, jlong handle, jint option, jint value)
 {
     audio_codec_handle_t codec = (audio_codec_handle_t) handle;
-    return set_audio_encoder_bitrate(codec, bitrate);
+    return set_audio_encoder_option(codec, (AudioEncoderOption)option, value);
 }
 
 JNI_ENC_FUNC(jbyteArray, EncodeFrame)(JNIEnv *env, jobject inst, jlong handle, jbyteArray pcmdata)

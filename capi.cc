@@ -291,15 +291,30 @@ void destroy_audio_encoder(audio_codec_handle_t handle) {
     delete handle;
 }
 
-int set_audio_encoder_bitrate(audio_codec_handle_t handle, int bitrate_bps) {
+int set_audio_encoder_option(audio_codec_handle_t handle, AudioEncoderOption option, int value) {
     returnv_if_fail(handle, -1);
     returnv_if_fail(handle->ptr, -1);
     returnv_if_fail(!handle->is_dec, -1);
+
+    int iret = -1;
     if (handle->id == OPUS_CODEC) {
         OpusEncInst * eptr = (OpusEncInst *)handle->ptr;
-        return WebRtcOpus_SetBitRate(eptr, bitrate_bps);
+        switch (option) {
+        case AUDIO_ENCODER_BITRATE:
+            iret = WebRtcOpus_SetBitRate(eptr, value);
+            break;
+        case AUDIO_ENCODER_LOSSRATE:
+            iret = WebRtcOpus_SetPacketLossRate(eptr, value);
+            break;
+        case AUDIO_ENCODER_FEC:
+            iret = (value != 0) ? WebRtcOpus_EnableFec(eptr) : WebRtcOpus_DisableFec(eptr);
+            break;
+        case AUDIO_ENCODER_COMPLEXITY:
+            iret = WebRtcOpus_SetComplexity(eptr, value);
+            break;
+        }
     }
-    return -1;
+    return iret;
 }
 
 int encode_audio_frame(audio_codec_handle_t handle, int16_t rawdata[], int16_t rawlength, uint8_t encoded[], int16_t encoded_buffer_length) {
