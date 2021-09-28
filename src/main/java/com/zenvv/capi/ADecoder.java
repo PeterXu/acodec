@@ -22,21 +22,25 @@ public class ADecoder {
     }
 
     public byte[] Decode(byte[] encoded) {
-        return DecodeFrame(audioHandle, encoded, false);
+        return DecodeFrame(audioHandle, encoded, 0);
+    }
+
+    public short[] DecodeEx(byte[] encoded) {
+        return DecodeFrameEx(audioHandle, encoded, 0);
     }
 
     /**
      * only support opus
      */
     public byte[] DecodeFec(byte[] encoded) {
-        return DecodeFrame(audioHandle, encoded, true);
+        return DecodeFrame(audioHandle, encoded, 1);
     }
 
     /**
      * only support opus
      */
     public byte[] DecodePlc() {
-        return DecodeFramePlc(audioHandle);
+        return DecodeFrame(audioHandle, null, 2);
     }
 
     public int GetLastError() {
@@ -45,8 +49,8 @@ public class ADecoder {
 
     private native long CreateDecoder(int codecId, int nChannels);
     private native void DestroyDecoder(long handle);
-    private native byte[] DecodeFrame(long handle, byte[] encoded, boolean bFec);
-    private native byte[] DecodeFramePlc(long handle);
+    private native byte[] DecodeFrame(long handle, byte[] encoded, int mode);
+    private native short[] DecodeFrameEx(long handle, byte[] encoded, int mode);
     private native int GetError(long handle);
 
     static  {
