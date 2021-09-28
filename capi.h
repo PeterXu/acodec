@@ -16,12 +16,24 @@ typedef struct audio_resampler_t *audio_resampler_handle_t;
 
 
 /**
+ * Supported inFreq and outFreq:
+ *  a) inFreq == outFreq,
+ *  b) outFreq / inFreq = 2|3|4|6|12,
+ *  c) inFreq / outFreq = 2|3|4|6|12,
+ *  d) inFreq : outFreq = 2:3, 2:11, 4:11, 8:11, 
+ *  3) inFreq : outFreq = 3:2, 11:2, 11:4, 11:16, 11:32, 11:8
+ *
  * inFreq [in]: input frequency, e.g. 32000,
  * outFreq [out]: output frequency, e.g. 16000,
  */
 audio_resampler_handle_t create_audio_resampler(int inFreq, int outFreq);
 void destroy_audio_resampler(audio_resampler_handle_t handle);
 
+/**
+ * @return: fail if <=0, ok if > 0: the integer multiple of output/input,
+ *          e.g. return-N means if input is 1, output will be [N-1, N).
+ */
+int get_audio_resampler_output_multiple(audio_resampler_handle_t handle);
 
 /**
  * samplesIn [in]: input samples(pcm)

@@ -2,30 +2,40 @@ import com.zenvv.capi.*;
 
 public class TestJni {
     public static void main(String[] args) {
-        byte[] data = new byte[960];
-        AEncoder enc = new AEncoder(AEncoder.OPUS_CODEC);
-        byte[] ret = enc.Encode(data);
-        int err = enc.GetLastError();
-        enc.Close();
-        int len = (ret != null) ? ret.length : 0;
-        System.out.println("encode:" + len + ", err:" + err);
+        byte[] encoded = null;
 
         {
-            ADecoder dec1 = new ADecoder(ADecoder.OPUS_CODEC);
-            byte[] ret1 = dec1.Decode(ret);
-            int err1 = dec1.GetLastError();
-            dec1.Close();
-            int len1 = (ret1 != null) ? ret1.length : 0;
-            System.out.println("decode1:" + len1 + ", err:" + err1);
+            byte[] data = new byte[960];
+            AEncoder enc = new AEncoder(AEncoder.OPUS_CODEC);
+            encoded = enc.Encode(data);
+            int err = enc.GetLastError();
+            enc.Close();
+            int len = (encoded != null) ? encoded.length : 0;
+            System.out.println("encode:" + len + ", err:" + err);
         }
 
         {
-            ADecoder dec2 = new ADecoder(ADecoder.OPUS_CODEC);
-            short[] ret2 = dec2.DecodeEx(ret);
-            int err2 = dec2.GetLastError();
-            dec2.Close();
+            ADecoder dec = new ADecoder(ADecoder.OPUS_CODEC);
+            byte[] ret = dec.Decode(encoded);
+            int err = dec.GetLastError();
+            dec.Close();
+            int len = (ret != null) ? ret.length : 0;
+            System.out.println("decode1:" + len + ", err:" + err);
+        }
+
+        {
+            ADecoder dec = new ADecoder(ADecoder.OPUS_CODEC);
+            short[] ret = dec.DecodeEx(encoded);
+            int err = dec.GetLastError();
+            dec.Close();
+            int len = (ret != null) ? ret.length : 0;
+            System.out.println("decode2:" + len + ", err:" + err);
+
+            Resampler re = new Resampler(32000, 16000);
+            short[] ret2 = re.Push(ret);
+            re.Close();
             int len2 = (ret2 != null) ? ret2.length : 0;
-            System.out.println("decode2:" + len2 + ", err:" + err2);
+            System.out.println("resample2:" + len2);
         }
     }
 }

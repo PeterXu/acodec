@@ -6,6 +6,7 @@
 
 #define JNI_DEC_FUNC(v, p) JNIEXPORT v JNICALL Java_com_zenvv_capi_ADecoder_ ## p
 #define JNI_ENC_FUNC(v, p) JNIEXPORT v JNICALL Java_com_zenvv_capi_AEncoder_ ## p
+#define JNI_RES_FUNC(v, p) JNIEXPORT v JNICALL Java_com_zenvv_capi_Resampler_ ## p
 
 
 enum {
@@ -57,6 +58,11 @@ short *as_cshort_array(JNIEnv *env, jshortArray array, int *outlen) {
 extern "C" {
 
 void Java_Jni_Test() {}
+
+
+/**
+ * Decoder
+ */
 
 JNI_DEC_FUNC(jlong, CreateDecoder)(JNIEnv *env, jobject inst, jint codecId, jint nChannels)
 {
@@ -125,7 +131,8 @@ JNI_DEC_FUNC(jshortArray, DecodeFrameEx)(JNIEnv *env, jobject inst, jlong handle
     return NULL;
 }
 
-JNI_DEC_FUNC(jint, GetError)(JNIEnv *env, jobject inst, jlong handle) {
+JNI_DEC_FUNC(jint, GetError)(JNIEnv *env, jobject inst, jlong handle)
+{
     audio_codec_handle_t codec = (audio_codec_handle_t)handle;
     return get_audio_codec_error(codec);
 }
@@ -172,9 +179,49 @@ JNI_ENC_FUNC(jbyteArray, EncodeFrame)(JNIEnv *env, jobject inst, jlong handle, j
     return result;
 }
 
-JNI_ENC_FUNC(jint, GetError)(JNIEnv *env, jobject inst, jlong handle) {
+JNI_ENC_FUNC(jint, GetError)(JNIEnv *env, jobject inst, jlong handle)
+{
     audio_codec_handle_t codec = (audio_codec_handle_t)handle;
     return get_audio_codec_error(codec);
 }
+
+
+/**
+ * Resampler
+ */
+
+JNI_RES_FUNC(jlong, CreateResampler)(JNIEnv *env, jobject inst, jint inFreq, jint outFreq)
+{
+    audio_resampler_handle_t handle = create_audio_resampler(inFreq, outFreq);
+    return (jlong) handle;
+}
+
+JNI_RES_FUNC(void, DestroyResampler)(JNIEnv *env, jobject inst, jlong handle)
+{
+    audio_resampler_handle_t resampler = (audio_resampler_handle_t) handle;
+    destroy_audio_resampler(resampler);
+}
+
+JNI_RES_FUNC(jshortArray, PushSample)(JNIEnv *env, jobject inst, jlong handle, jshortArray samplesIn)
+{
+    audio_resampler_handle_t resampler = (audio_resampler_handle_t) handle;
+
+    int inLen = 0;
+    short *inData = as_cshort_array(env, samplesIn, &inLen);
+    int maxOutLen = get_audio_resampler_output_multiple(resampler) * inLen;
+    if (maxOutLen <= 0) return NULL;
+
+    int outLen = 0;
+    short *outData = (short *)malloc(maxOutLen);
+    int iret = push_audio_resampler(resampler, inData, inLen, outData, maxOutLen, &outLen);
+
+    jshortArray ret = NULL;
+    if (iret == 0) {
+        ret = as_jshort_array(env, outData, outLen);
+    }
+    if (outData) free(outData);
+    return ret;
+}
+
 
 } // extern "C"

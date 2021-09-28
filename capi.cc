@@ -23,11 +23,15 @@
 
 struct audio_resampler_t {
     webrtc::Resampler *ptr;
+    int inFreq;
+    int outFreq;
 };
 
 audio_resampler_handle_t create_audio_resampler(int inFreq, int outFreq) {
     audio_resampler_t *resampler = new audio_resampler_t;
     resampler->ptr = new webrtc::Resampler(inFreq, outFreq, webrtc::kResamplerSynchronous);
+    resampler->inFreq = inFreq;
+    resampler->outFreq = outFreq;
     return resampler;
 }
 
@@ -37,12 +41,20 @@ void destroy_audio_resampler(audio_resampler_handle_t handle) {
     delete handle;
 }
 
+int get_audio_resampler_output_multiple(audio_resampler_handle_t handle) {
+    returnv_if_fail(handle, -1);
+    returnv_if_fail((handle->inFreq != 0), -1);
+    int value = int(float(handle->outFreq) / handle->inFreq + 0.5f);
+    if (value == 0) value = 1;
+    return value;
+}
+
 int push_audio_resampler(audio_resampler_handle_t handle, int16_t* samplesIn, int lengthIn, int16_t* samplesOut, int maxLen, int *outLen) {
     returnv_if_fail(handle, -1);
     returnv_if_fail(handle->ptr, -1);
 
     webrtc::Resampler *resampler = handle->ptr;
-    int outSampleLen = *outLen;
+    int outSampleLen = 0;
     int ret = resampler->Push(samplesIn, lengthIn, samplesOut, maxLen, outSampleLen);
     *outLen = outSampleLen;
     return ret;
