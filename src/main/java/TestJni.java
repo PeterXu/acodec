@@ -31,11 +31,21 @@ public class TestJni {
             int len = (ret != null) ? ret.length : 0;
             System.out.println("decode2:" + len + ", err:" + err);
 
-            Resampler re = new Resampler(32000, 16000);
-            short[] ret2 = re.Push(ret);
-            re.Close();
-            int len2 = (ret2 != null) ? ret2.length : 0;
-            System.out.println("resample2:" + len2);
+            {
+                Resampler re = new Resampler(32000, 16000);
+                short[] ret2 = re.Push(ret);
+                re.Close();
+                int len2 = (ret2 != null) ? ret2.length : 0;
+                System.out.println("resample-mono:" + len2);
+            }
+
+            {
+                Resampler re = new Resampler(32000, 16000, 1);
+                short[] ret2 = re.Push(ret);
+                re.Close();
+                int len2 = (ret2 != null) ? ret2.length : 0;
+                System.out.println("resample-stereo:" + len2);
+            }
         }
     }
 }

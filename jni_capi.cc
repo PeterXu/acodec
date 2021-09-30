@@ -196,6 +196,12 @@ JNI_RES_FUNC(jlong, CreateResampler)(JNIEnv *env, jobject inst, jint inFreq, jin
     return (jlong) handle;
 }
 
+JNI_RES_FUNC(jlong, CreateStereoResampler)(JNIEnv *env, jobject inst, jint inFreq, jint outFreq, jint channels)
+{
+    audio_resampler_handle_t handle = create_audio_stereo_resampler(inFreq, outFreq, channels);
+    return (jlong) handle;
+}
+
 JNI_RES_FUNC(void, DestroyResampler)(JNIEnv *env, jobject inst, jlong handle)
 {
     audio_resampler_handle_t resampler = (audio_resampler_handle_t) handle;

@@ -4,7 +4,7 @@ CXX = $(HOST)-g++
 AR = $(HOST)-ar rcs
 RANLIB = $(HOST)-ranlib
 
-CFLAGS = -Wall -fPIC -DPIC -g -O2
+CFLAGS = -Wall -fPIC -DPIC -g -O2 -Wno-unused-local-typedefs
 LDFLAGS =
 DFLAGS = -shared
 CFLAGS += -DWEBRTC_WIN

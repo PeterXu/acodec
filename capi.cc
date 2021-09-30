@@ -1,5 +1,7 @@
 #include "capi.h"
 #include "webrtc/common_audio/resampler/include/resampler.h"
+#include "webrtc/common_audio/resampler/include/push_resampler.h"
+
 #include "webrtc/modules/audio_coding/codecs/opus/interface/opus_interface.h"
 #include "webrtc/modules/audio_coding/codecs/g711/include/g711_interface.h"
 #include "webrtc/modules/audio_coding/codecs/g722/include/g722_interface.h"
@@ -22,22 +24,43 @@
  */
 
 struct audio_resampler_t {
-    webrtc::Resampler *ptr;
     int inFreq;
     int outFreq;
+    int channels;
+    webrtc::Resampler *ptr;
+    webrtc::PushResampler<short> *ptr2;
 };
 
 audio_resampler_handle_t create_audio_resampler(int inFreq, int outFreq) {
-    audio_resampler_t *resampler = new audio_resampler_t;
-    resampler->ptr = new webrtc::Resampler(inFreq, outFreq, webrtc::kResamplerSynchronous);
-    resampler->inFreq = inFreq;
-    resampler->outFreq = outFreq;
-    return resampler;
+    audio_resampler_t *handle = new audio_resampler_t;
+    handle->inFreq = inFreq;
+    handle->outFreq = outFreq;
+    handle->channels = -1;
+
+    handle->ptr = new webrtc::Resampler(inFreq, outFreq, webrtc::kResamplerSynchronous);
+    handle->ptr2 = NULL;
+    return handle;
+}
+
+audio_resampler_handle_t create_audio_stereo_resampler(int inFreq, int outFreq, int channels) {
+    audio_resampler_t *handle = new audio_resampler_t;
+    handle->inFreq = inFreq;
+    handle->outFreq = outFreq;
+    handle->channels = channels;
+
+    handle->ptr = NULL;
+    webrtc::PushResampler<short> *resampler = new webrtc::PushResampler<short>();
+    /*int iret = */
+    resampler->InitializeIfNeeded(inFreq, outFreq, channels);
+    //fprintf(stderr, "initialize resampler:%d\n", iret);
+    handle->ptr2 = resampler;
+    return handle;
 }
 
 void destroy_audio_resampler(audio_resampler_handle_t handle) {
     return_if_fail(handle);
     delete handle->ptr;
+    delete handle->ptr2;
     delete handle;
 }
 
@@ -51,13 +74,20 @@ int get_audio_resampler_output_multiple(audio_resampler_handle_t handle) {
 
 int push_audio_resampler(audio_resampler_handle_t handle, int16_t* samplesIn, int lengthIn, int16_t* samplesOut, int maxLen, int *outLen) {
     returnv_if_fail(handle, -1);
-    returnv_if_fail(handle->ptr, -1);
 
-    webrtc::Resampler *resampler = handle->ptr;
-    int outSampleLen = 0;
-    int ret = resampler->Push(samplesIn, lengthIn, samplesOut, maxLen, outSampleLen);
-    *outLen = outSampleLen;
-    return ret;
+    int iret = -1;
+    if (handle->ptr) {
+        int outSampleLen = 0;
+        iret = handle->ptr->Push(samplesIn, lengthIn, samplesOut, maxLen, outSampleLen);
+        *outLen = outSampleLen;
+    } else if (handle->ptr2) {
+        iret = handle->ptr2->Resample(samplesIn, lengthIn, samplesOut, maxLen);
+        if (iret > 0) {
+            *outLen = iret;
+            iret = 0;
+        }
+    }
+    return iret;
 }
 
 

@@ -16,7 +16,7 @@ typedef struct audio_resampler_t *audio_resampler_handle_t;
 
 
 /**
- * Supported inFreq and outFreq:
+ * This is mono-resampler and supported inFreq and outFreq:
  *  a) inFreq == outFreq,
  *  b) outFreq / inFreq = 2|3|4|6|12,
  *  c) inFreq / outFreq = 2|3|4|6|12,
@@ -27,6 +27,13 @@ typedef struct audio_resampler_t *audio_resampler_handle_t;
  * outFreq [out]: output frequency, e.g. 16000,
  */
 audio_resampler_handle_t create_audio_resampler(int inFreq, int outFreq);
+
+/**
+ * This is stereo resampler and support all kinds of frequency.
+ * channels[in]: 1 or 2.
+ */
+audio_resampler_handle_t create_audio_stereo_resampler(int inFreq, int outFreq, int channels);
+
 void destroy_audio_resampler(audio_resampler_handle_t handle);
 
 /**
